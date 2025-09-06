@@ -36,7 +36,7 @@ export default function HomePage() {
     setP(cached);
   }, []);
 
-  // Функция поиска пользователей
+  // Функция поиска пользователей через API
   async function handleSearch(query) {
     const trimmed = (query || '').replace(/^@/, '').trim();
     if (!trimmed) { 
@@ -45,32 +45,26 @@ export default function HomePage() {
       return; 
     }
 
+    if (trimmed.length < 2) {
+      setSearchResults([]);
+      setSearchError('Минимум 2 символа для поиска');
+      return;
+    }
+
     try {
       setIsSearching(true);
       setSearchError(null);
       
-      // Симуляция API поиска (замените на реальный API)
-      await new Promise(resolve => setTimeout(resolve, 500)); // Имитация задержки
+      const response = await fetch(`/api/searchUsers?q=${encodeURIComponent(trimmed)}`);
+      const data = await response.json();
       
-      // Мок данные для демонстрации
-      const mockResults = [
-        {
-          id: 1,
-          username: trimmed,
-          name: `User ${trimmed}`,
-          avatar: '/placeholder.png'
-        },
-        {
-          id: 2,
-          username: `${trimmed}_dev`,
-          name: `${trimmed} Developer`,
-          avatar: '/placeholder.png'
-        }
-      ].filter(user => user.username.toLowerCase().includes(trimmed.toLowerCase()));
+      if (!response.ok) {
+        throw new Error(data.error || 'Ошибка поиска');
+      }
 
-      setSearchResults(mockResults);
+      setSearchResults(data.items || []);
     } catch (error) {
-      setSearchError('Ошибка поиска. Попробуйте снова.');
+      setSearchError(error.message || 'Ошибка поиска. Попробуйте снова.');
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -110,7 +104,17 @@ export default function HomePage() {
   // Обработчик клика на пользователя
   function handleUserClick(user) {
     // Здесь можно добавить логику перехода на профиль пользователя
-    alert(`Открываем профиль @${user.username}`);
+    // Например, открыть страницу профиля в Telegram или внутри приложения
+    const telegramUrl = `https://t.me/${user.username}`;
+    
+    // Попробуем открыть в Telegram, если доступно
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.openTelegramLink(telegramUrl);
+    } else {
+      // Или просто покажем алерт с информацией
+      alert(`Пользователь: ${user.name}\n@${user.username}\n\nОткрыть профиль: ${telegramUrl}`);
+    }
+    
     closeSearch();
   }
 
@@ -222,13 +226,13 @@ export default function HomePage() {
 
             {isSearching && (
               <div className="foot" style={{textAlign: 'center', marginTop: '16px'}}>
-                Ищем...
+                🔍 Ищем...
               </div>
             )}
 
             {searchError && (
               <div className="foot" style={{color:'#ffb4b4', marginTop: '16px'}}>
-                {searchError}
+                ⚠️ {searchError}
               </div>
             )}
 
@@ -242,7 +246,10 @@ export default function HomePage() {
                   >
                     <img src={user.avatar} alt="" />
                     <div className="user-meta">
-                      <div className="user-name">{user.name}</div>
+                      <div className="user-name">
+                        {user.name}
+                        {user.verified && <span style={{color: 'var(--brand)', marginLeft: '4px'}}>✓</span>}
+                      </div>
                       <div className="user-handle">@{user.username}</div>
                     </div>
                     <span className="user-open">Открыть</span>
@@ -251,15 +258,15 @@ export default function HomePage() {
               </div>
             )}
 
-            {!isSearching && !searchError && searchResults.length === 0 && searchQuery.trim() !== '' && (
+            {!isSearching && !searchError && searchResults.length === 0 && searchQuery.trim() !== '' && searchQuery.trim().length >= 2 && (
               <div className="foot" style={{textAlign: 'center', marginTop: '16px'}}>
-                Ничего не найдено по запросу "@{searchQuery.replace(/^@/, '')}"
+                😕 Ничего не найдено по запросу "@{searchQuery.replace(/^@/, '')}"
               </div>
             )}
 
             {searchQuery.trim() === '' && (
               <div className="foot" style={{textAlign: 'center', marginTop: '16px', opacity: 0.7}}>
-                Введите @никнейм для поиска пользователя
+                💡 Введите @никнейм для поиска пользователя
               </div>
             )}
           </div>
