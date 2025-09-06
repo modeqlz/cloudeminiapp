@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
     const searchTerm = q.trim().toLowerCase();
 
-    // Мок данные для демонстрации
+    // Расширенные мок данные для демонстрации
     // В реальном приложении здесь был бы запрос к базе данных или внешнему API
     const mockUsers = [
       {
@@ -52,6 +52,41 @@ export default async function handler(req, res) {
         name: 'Crypto Trader',
         avatar: '/placeholder.png',
         verified: true
+      },
+      {
+        id: 6,
+        username: 'vampi',
+        name: 'Vampi',
+        avatar: '/placeholder.png',
+        verified: true
+      },
+      {
+        id: 7,
+        username: 'modeqlz',
+        name: 'Modeqlz',
+        avatar: '/placeholder.png',
+        verified: true
+      },
+      {
+        id: 8,
+        username: 'cloude_user',
+        name: 'Cloud User',
+        avatar: '/placeholder.png',
+        verified: false
+      },
+      {
+        id: 9,
+        username: 'test_account',
+        name: 'Test Account',
+        avatar: '/placeholder.png',
+        verified: false
+      },
+      {
+        id: 10,
+        username: 'spectra_market',
+        name: 'Spectra Market',
+        avatar: '/placeholder.png',
+        verified: true
       }
     ];
 
@@ -61,8 +96,8 @@ export default async function handler(req, res) {
       user.name.toLowerCase().includes(searchTerm)
     );
 
-    // Ограничиваем результаты до 10
-    const results = filteredUsers.slice(0, 10);
+    // Ограничиваем результаты до 15
+    const results = filteredUsers.slice(0, 15);
 
     return res.status(200).json({
       items: results,
