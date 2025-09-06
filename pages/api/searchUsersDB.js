@@ -1,84 +1,99 @@
-// pages/api/searchUsersDB.js
-// Версия с реальной базой данных через Supabase
+// Mock data for when Supabase is not configured
+let mockUsers = [
+  {
+    id: 1,
+    telegram_id: 123456789,
+    username: 'johndoe',
+    name: 'John Doe',
+    avatar_url: '/placeholder.png',
+    verified: true
+  },
+  {
+    id: 2,
+    telegram_id: 987654321,
+    username: 'janesmith',
+    name: 'Jane Smith',
+    avatar_url: '/placeholder.png',
+    verified: false
+  },
+  {
+    id: 3,
+    telegram_id: 555666777,
+    username: 'alexbrown',
+    name: 'Alex Brown',
+    avatar_url: '/placeholder.png',
+    verified: true
+  }
+]
 
-import { searchUsers } from '../../lib/supabase'
+// Function to add a user to mock data (called from telegram.js)
+export function addUserToMockData(userProfile) {
+  // Check if user already exists
+  const existingUserIndex = mockUsers.findIndex(u => u.telegram_id === userProfile.telegram_id)
+  
+  if (existingUserIndex !== -1) {
+    // Update existing user
+    mockUsers[existingUserIndex] = {
+      ...mockUsers[existingUserIndex],
+      username: userProfile.username,
+      name: userProfile.name,
+      avatar_url: userProfile.photo_url,
+      updated_at: new Date().toISOString()
+    }
+  } else {
+    // Add new user
+    mockUsers.push({
+      id: mockUsers.length + 1,
+      telegram_id: userProfile.telegram_id,
+      username: userProfile.username,
+      name: userProfile.name,
+      avatar_url: userProfile.photo_url,
+      verified: userProfile.verified || false,
+      created_at: new Date().toISOString()
+    })
+  }
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
   try {
-    const { q } = req.query;
+    const { q: searchTerm } = req.query
     
-    if (!q || q.trim().length < 2) {
-      return res.status(400).json({ error: 'Query must be at least 2 characters long' });
+    if (!searchTerm) {
+      return res.status(400).json({ error: 'Search term is required' })
     }
 
-    const searchTerm = q.trim();
+    // Check if Supabase environment variables are available
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      try {
+        // Use Supabase if configured
+        const { searchUsers } = await import('../../lib/supabase')
+        const users = await searchUsers(searchTerm)
+        return res.status(200).json({ success: true, users })
+      } catch (supabaseError) {
+        console.error('Supabase search failed, falling back to mock data:', supabaseError)
+        // Fall through to mock data search
+      }
+    }
 
-    // Проверяем наличие переменных окружения Supabase
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.log('Supabase не настроен, используем мок данные...')
+    // Fallback: search in mock data
+    const filteredUsers = mockUsers.filter(user => {
+      const searchLower = searchTerm.toLowerCase()
+      const username = (user.username || '').toLowerCase()
+      const name = (user.name || '').toLowerCase()
       
-      // Fallback к мок данным если Supabase не настроен
-      const mockUsers = [
-        {
-          id: 1,
-          username: 'modelqz',
-          name: 'Model QZ',
-          avatar_url: '/placeholder.png',
-          verified: true
-        },
-        {
-          id: 2,
-          username: 'vampi',
-          name: 'Vampi',
-          avatar_url: '/placeholder.png',
-          verified: true
-        },
-        {
-          id: 3,
-          username: 'modeqlz',
-          name: 'Modeqlz',
-          avatar_url: '/placeholder.png',
-          verified: true
-        }
-      ];
+      return username.includes(searchLower) || name.includes(searchLower)
+    })
 
-      const filteredUsers = mockUsers.filter(user => 
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-      return res.status(200).json({
-        items: filteredUsers,
-        total: filteredUsers.length,
-        query: searchTerm,
-        source: 'mock'
-      });
-    }
-
-    // Используем реальную базу данных
-    const { data: users, error } = await searchUsers(searchTerm);
-
-    if (error) {
-      throw new Error(error);
-    }
-
-    return res.status(200).json({
-      items: users || [],
-      total: (users || []).length,
-      query: searchTerm,
-      source: 'database'
-    });
-
+    res.status(200).json({ 
+      success: true, 
+      users: filteredUsers.slice(0, 10) // Limit to 10 results
+    })
   } catch (error) {
-    console.error('[api/searchUsersDB] error:', error);
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      details: error.message 
-    });
+    console.error('Search error:', error)
+    res.status(500).json({ error: 'Search failed' })
   }
 }

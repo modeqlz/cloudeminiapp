@@ -1,11 +1,10 @@
-// pages/_document.js
-import { Html, Head, Main, NextScript } from 'next/document';
+import { Html, Head, Main, NextScript } from 'next/document'
 
 export default function Document() {
   return (
-    <Html lang="ru">
+    <Html lang="en">
       <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, viewport-fit=cover" />
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
       </Head>
       <body>
@@ -13,5 +12,5 @@ export default function Document() {
         <NextScript />
       </body>
     </Html>
-  );
+  )
 }

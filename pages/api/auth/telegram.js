@@ -1,57 +1,60 @@
-// pages/api/auth/telegram.js
-import { validateInitData, parseInitData } from '../../../lib/verifyTelegramAuth.js';
-
-// Явно укажем Node-runtime (на всякий случай, чтобы не уехало в Edge)
-export const config = {
-  runtime: 'nodejs',
-};
+import { verifyTelegramAuth } from '../../../lib/verifyTelegramAuth'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
   try {
-    const BOT_TOKEN = process.env.BOT_TOKEN;
-    if (!BOT_TOKEN) {
-      return res.status(500).json({ ok: false, error: 'Missing BOT_TOKEN on server' });
-    }
-
-    // Поддержим и raw string, и body { initData }
-    const initData =
-      typeof req.body === 'string' ? req.body : (req.body && req.body.initData) || '';
-
+    const { initData } = req.body
+    
     if (!initData) {
-      return res.status(400).json({ ok: false, error: 'No initData provided' });
+      return res.status(400).json({ error: 'No init data provided' })
     }
 
-    const result = validateInitData(initData, BOT_TOKEN);
-    if (!result.ok) {
-      return res.status(401).json({ ok: false, error: result.reason || 'Invalid initData' });
+    // Verify the Telegram data
+    const verification = verifyTelegramAuth(initData)
+    
+    if (!verification.valid) {
+      return res.status(400).json({ error: 'Invalid Telegram data' })
     }
 
-    const parsed = parseInitData(initData);
-    let user = null;
+    const userProfile = {
+      id: verification.user.id,
+      telegram_id: verification.user.id,
+      username: verification.user.username,
+      first_name: verification.user.first_name,
+      last_name: verification.user.last_name,
+      name: `${verification.user.first_name} ${verification.user.last_name || ''}`.trim(),
+      photo_url: verification.user.photo_url,
+      verified: false // You can set logic for verified users
+    }
+
+    // Try to save user to database (Supabase)
     try {
-      user = parsed.user ? JSON.parse(parsed.user) : null;
-    } catch (_) {
-      return res.status(400).json({ ok: false, error: 'Bad user payload in initData' });
+      // Check if Supabase environment variables are available
+      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        // Dynamic import to prevent errors if Supabase is not configured
+        const { saveUser } = await import('../../../lib/supabase')
+        await saveUser(userProfile)
+        console.log('User saved to Supabase database')
+      } else {
+        // Fallback: add user to mock data
+        const { addUserToMockData } = await import('../searchUsersDB')
+        addUserToMockData(userProfile)
+        console.log('User added to mock data (Supabase not configured)')
+      }
+    } catch (dbError) {
+      console.error('Database operation failed:', dbError)
+      // Still continue with login even if DB save fails
     }
 
-    const profile = user
-      ? {
-          id: user.id,
-          first_name: user.first_name || '',
-          last_name: user.last_name || '',
-          username: user.username || '',
-          photo_url: user.photo_url || '',
-        }
-      : null;
-
-    return res.status(200).json({ ok: true, profile });
-  } catch (e) {
-    console.error('[api/auth/telegram] error:', e);
-    return res.status(500).json({ ok: false, error: 'Server error' });
+    res.status(200).json({
+      success: true,
+      user: userProfile
+    })
+  } catch (error) {
+    console.error('Auth error:', error)
+    res.status(500).json({ error: 'Authentication failed' })
   }
 }
