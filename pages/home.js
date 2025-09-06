@@ -107,51 +107,51 @@ export default function HomePage() {
             {/* Auctions */}
             <a className="tile tile-auction" href="/auctions">
               <div className="tile-head">
-                <div className="tile-title">Аукционы</div>
+                <div className="tile-title">🔥 Горячие аукционы</div>
                 <div className="tile-badge">Live</div>
               </div>
               <div className="tile-desc">
-                Делай ставки на редкие подарки в реальном времени.
+                Участвуй в битвах за легендарные скины. Кто больше заплатит — тот и забирает!
               </div>
             </a>
 
             {/* Gifts */}
             <a className="tile tile-gifts" href="/gifts">
               <div className="tile-head">
-                <div className="tile-title">Подарки</div>
+                <div className="tile-title">🎁 Магазин скинов</div>
               </div>
               <div className="tile-desc">
-                Каталог наборов и коллекций — отправляй друзьям в один тап.
+                Коллекция эксклюзивных скинов для CS:GO, Valorant, Dota 2. Покупай и дари друзьям!
               </div>
             </a>
 
             {/* Plans */}
             <a className="tile tile-plans" href="/plans">
               <div className="tile-head">
-                <div className="tile-title">Тарифы</div>
+                <div className="tile-title">⭐ VIP статусы</div>
               </div>
               <ul className="tile-list">
-                <li>Бесплатный — стартуй без рисков</li>
-                <li>Plus — расширенная витрина</li>
-                <li>Pro — максимум для продавцов</li>
+                <li>🆓 Новичок — первые шаги в трейдинге</li>
+                <li>🥉 Трейдер — больше возможностей</li>
+                <li>🥇 Про-игрок — максимум привилегий</li>
               </ul>
             </a>
 
             {/* My purchases */}
             <a className="tile tile-orders" href="/orders">
               <div className="tile-head">
-                <div className="tile-title">Покупки</div>
+                <div className="tile-title">📦 Мои скины</div>
               </div>
-              <div className="tile-desc">История покупок и статусы отправки.</div>
+              <div className="tile-desc">Твоя коллекция скинов и история всех сделок в одном месте.</div>
             </a>
 
             {/* Search People */}
             <div className="tile tile-search" onClick={() => setShowSearch(true)} style={{cursor: 'pointer'}}>
               <div className="tile-head">
-                <div className="tile-title">Поиск по @никнейму</div>
+                <div className="tile-title">🔍 Поиск игроков</div>
               </div>
               <div className="tile-desc">
-                Найди пользователей, которые входили в приложение.
+                Найди других трейдеров и коллекционеров по @никнейму. Начни обмен прямо сейчас!
               </div>
             </div>
           </div>
@@ -162,75 +162,143 @@ export default function HomePage() {
           <div className="overlay" onClick={closeSearch}>
             <div className="overlay-backdrop" />
             <div className="overlay-panel" onClick={(e) => e.stopPropagation()}>
-              <div className="brand" style={{justifyContent:'space-between', width:'100%', marginBottom: 16}}>
-                <span>Поиск пользователей</span>
+              <div className="brand" style={{justifyContent:'space-between', width:'100%', marginBottom: 20}}>
+                <span>🔍 Поиск трейдеров</span>
                 <button className="btn btn-ghost" onClick={closeSearch} style={{padding: '8px'}}>✕</button>
               </div>
 
-              <div style={{marginBottom: 16}}>
-                <input
-                  type="text"
-                  placeholder="Введите @никнейм или имя..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  autoFocus
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    border: '1px solid var(--border)',
-                    borderRadius: '12px',
-                    background: 'var(--card)',
-                    color: 'var(--text)',
+              <div style={{marginBottom: 20}}>
+                <div style={{position: 'relative'}}>
+                  <span style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
                     fontSize: '16px',
-                    outline: 'none'
-                  }}
-                />
+                    color: 'var(--muted)'
+                  }}>🎮</span>
+                  <input
+                    type="text"
+                    placeholder="Найди игрока по @никнейму или имени..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    autoFocus
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px 12px 40px',
+                      border: '1px solid var(--border)',
+                      borderRadius: '12px',
+                      background: 'var(--card)',
+                      color: 'var(--text)',
+                      fontSize: '16px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease'
+                    }}
+                  />
+                </div>
+                <div style={{fontSize: '12px', color: 'var(--muted)', marginTop: '8px', textAlign: 'center'}}>
+                  💡 Ищи коллекционеров скинов и начинай обмен
+                </div>
               </div>
 
-              <div style={{maxHeight: '300px', overflowY: 'auto'}}>
+              <div style={{maxHeight: '320px', overflowY: 'auto'}}>
                 {isSearching && (
-                  <div style={{textAlign: 'center', padding: '20px', color: 'var(--muted)'}}>
-                    Поиск...
+                  <div style={{textAlign: 'center', padding: '30px', color: 'var(--muted)'}}>
+                    <div style={{fontSize: '24px', marginBottom: '8px'}}>🔄</div>
+                    <div>Ищем игроков...</div>
                   </div>
                 )}
                 
                 {!isSearching && searchQuery.length >= 2 && searchResults.length === 0 && (
-                  <div style={{textAlign: 'center', padding: '20px', color: 'var(--muted)'}}>
-                    Пользователи не найдены
+                  <div style={{textAlign: 'center', padding: '30px', color: 'var(--muted)'}}>
+                    <div style={{fontSize: '24px', marginBottom: '8px'}}>😕</div>
+                    <div><strong>Игроки не найдены</strong></div>
+                    <div style={{fontSize: '12px', marginTop: '4px'}}>
+                      Попробуй другой @никнейм или имя
+                    </div>
                   </div>
                 )}
                 
                 {!isSearching && searchResults.length > 0 && (
                   <div>
+                    <div style={{fontSize: '12px', color: 'var(--muted)', marginBottom: '12px', textAlign: 'center'}}>
+                      🎯 Найдено {searchResults.length} {searchResults.length === 1 ? 'игрок' : 'игроков'}
+                    </div>
                     {searchResults.map((user, index) => (
                       <div key={index} style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px',
-                        padding: '12px',
+                        gap: '14px',
+                        padding: '14px',
                         border: '1px solid var(--border)',
-                        borderRadius: '12px',
+                        borderRadius: '16px',
                         marginBottom: '8px',
-                        background: 'var(--card)'
-                      }}>
-                        <img 
-                          src={user.avatar_url || '/placeholder.png'} 
-                          alt={user.name || user.username} 
-                          style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '50%',
-                            objectFit: 'cover'
-                          }}
-                        />
+                        background: 'var(--card)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        position: 'relative'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-1px)'
+                        e.target.style.borderColor = 'var(--brand)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'translateY(0)'
+                        e.target.style.borderColor = 'var(--border)'
+                      }}
+                      >
+                        <div style={{position: 'relative'}}>
+                          <img 
+                            src={user.avatar_url || '/placeholder.png'} 
+                            alt={user.name || user.username} 
+                            style={{
+                              width: '48px',
+                              height: '48px',
+                              borderRadius: '50%',
+                              objectFit: 'cover',
+                              border: '2px solid var(--border)'
+                            }}
+                          />
+                          {user.verified && (
+                            <span style={{
+                              position: 'absolute',
+                              bottom: '-2px',
+                              right: '-2px',
+                              background: 'var(--brand)',
+                              color: 'white',
+                              borderRadius: '50%',
+                              width: '16px',
+                              height: '16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '10px',
+                              fontWeight: 'bold'
+                            }}>✓</span>
+                          )}
+                        </div>
                         <div style={{flex: 1}}>
-                          <div style={{fontWeight: '600', color: 'var(--text)'}}>
-                            {user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Без имени'}
-                            {user.verified && <span style={{color: 'var(--brand)', marginLeft: '6px'}}>✓</span>}
+                          <div style={{
+                            fontWeight: '600', 
+                            color: 'var(--text)',
+                            fontSize: '15px',
+                            marginBottom: '2px'
+                          }}>
+                            {user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Игрок'}
                           </div>
-                          <div style={{fontSize: '12px', color: 'var(--muted)'}}>
+                          <div style={{fontSize: '13px', color: 'var(--muted)'}}>
                             @{user.username}
                           </div>
+                        </div>
+                        <div style={{
+                          background: 'var(--brand)',
+                          borderRadius: '8px',
+                          padding: '6px 10px',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          color: 'white'
+                        }}>
+                          💬 Написать
                         </div>
                       </div>
                     ))}
