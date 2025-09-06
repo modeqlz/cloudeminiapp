@@ -15,6 +15,46 @@ function readStoredProfile() {
 
 export default function HomePage() {
   const [p, setP] = useState(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = async (query) => {
+    if (!query || query.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(`/api/searchUsersDB?q=${encodeURIComponent(query.trim())}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setSearchResults(data.users || []);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    handleSearch(value);
+  };
+
+  const closeSearch = () => {
+    setShowSearch(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
 
   useEffect(() => {
     // если пользователь вышел — на главную
@@ -105,17 +145,101 @@ export default function HomePage() {
               <div className="tile-desc">История покупок и статусы отправки.</div>
             </a>
 
-            {/* Create Gift */}
-            <a className="tile tile-create" href="/create">
+            {/* Search People */}
+            <div className="tile tile-search" onClick={() => setShowSearch(true)} style={{cursor: 'pointer'}}>
               <div className="tile-head">
-                <div className="tile-title">Создать подарок</div>
+                <div className="tile-title">Поиск по @никнейму</div>
               </div>
               <div className="tile-desc">
-                Собери персональный набор и отправь близким.
+                Найди пользователей, которые входили в приложение.
               </div>
-            </a>
+            </div>
           </div>
         </div>
+
+        {/* Search Modal */}
+        {showSearch && (
+          <div className="overlay" onClick={closeSearch}>
+            <div className="overlay-backdrop" />
+            <div className="overlay-panel" onClick={(e) => e.stopPropagation()}>
+              <div className="brand" style={{justifyContent:'space-between', width:'100%', marginBottom: 16}}>
+                <span>Поиск пользователей</span>
+                <button className="btn btn-ghost" onClick={closeSearch} style={{padding: '8px'}}>✕</button>
+              </div>
+
+              <div style={{marginBottom: 16}}>
+                <input
+                  type="text"
+                  placeholder="Введите @никнейм или имя..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '12px',
+                    background: 'var(--card)',
+                    color: 'var(--text)',
+                    fontSize: '16px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
+              <div style={{maxHeight: '300px', overflowY: 'auto'}}>
+                {isSearching && (
+                  <div style={{textAlign: 'center', padding: '20px', color: 'var(--muted)'}}>
+                    Поиск...
+                  </div>
+                )}
+                
+                {!isSearching && searchQuery.length >= 2 && searchResults.length === 0 && (
+                  <div style={{textAlign: 'center', padding: '20px', color: 'var(--muted)'}}>
+                    Пользователи не найдены
+                  </div>
+                )}
+                
+                {!isSearching && searchResults.length > 0 && (
+                  <div>
+                    {searchResults.map((user, index) => (
+                      <div key={index} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '12px',
+                        border: '1px solid var(--border)',
+                        borderRadius: '12px',
+                        marginBottom: '8px',
+                        background: 'var(--card)'
+                      }}>
+                        <img 
+                          src={user.avatar_url || '/placeholder.png'} 
+                          alt={user.name || user.username} 
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                        <div style={{flex: 1}}>
+                          <div style={{fontWeight: '600', color: 'var(--text)'}}>
+                            {user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Без имени'}
+                            {user.verified && <span style={{color: 'var(--brand)', marginLeft: '6px'}}>✓</span>}
+                          </div>
+                          <div style={{fontSize: '12px', color: 'var(--muted)'}}>
+                            @{user.username}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
