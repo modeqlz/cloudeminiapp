@@ -1,5 +1,5 @@
-import { validateInitData, parseInitData } from '../../lib/verifyTelegramAuth';
-import { upsertUser } from '../../lib/supabaseAdmin';
+import { supabaseAdmin, upsertUser } from '../../lib/supabaseAdmin';
+import { verifyTelegramAuth } from '../../lib/verifyTelegramAuth';
 
 export default async function handler(req, res) {
   // Логируем переменные окружения для диагностики
@@ -31,26 +31,14 @@ export default async function handler(req, res) {
     }
 
     // Проверяем подпись initData через библиотеку
-    const validation = validateInitData(initData, botToken, 86400); // 24 часа
+    const validation = verifyTelegramAuth(initData, botToken);
     
     if (!validation.ok) {
       console.log('❌ Проверка initData не прошла:', validation.reason);
       return res.status(401).json({ ok: false, error: 'Bad signature' });
     }
 
-    // Парсим данные пользователя из initData
-    const parsedData = parseInitData(initData);
-    let userData = null;
-
-    if (parsedData.user) {
-      try {
-        userData = JSON.parse(parsedData.user);
-      } catch (error) {
-        console.error('❌ Ошибка парсинга данных пользователя:', error);
-        return res.status(400).json({ ok: false, error: 'Invalid user data in initData' });
-      }
-    }
-
+    const userData = validation.user;
     if (!userData || !userData.id) {
       return res.status(400).json({ ok: false, error: 'No user data found in initData' });
     }
@@ -72,20 +60,19 @@ export default async function handler(req, res) {
     });
 
     // Сохраняем/обновляем пользователя в базе данных
-    const result = await upsertUser(userProfile);
-    
-    if (!result.ok) {
-      console.error('Supabase upsert error:', result.error);
+    try {
+      await upsertUser(userProfile);
+      console.log('✅ Пользователь успешно аутентифицирован и сохранен');
+      
+      // Возвращаем успешный результат
+      return res.status(200).json({
+        ok: true,
+        profile: userProfile
+      });
+    } catch (error) {
+      console.error('Supabase upsert error:', error);
       return res.status(500).json({ ok: false, error: 'Supabase upsert failed' });
     }
-
-    console.log('✅ Пользователь успешно аутентифицирован и сохранен');
-
-    // Возвращаем успешный результат
-    return res.status(200).json({
-      ok: true,
-      profile: result.profile
-    });
 
   } catch (error) {
     console.error('❌ Критическая ошибка аутентификации:', error);

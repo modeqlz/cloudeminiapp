@@ -6,12 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint:paths": "node -e \"require('fs').accessSync('./lib/supabaseAdmin.js'); require('fs').accessSync('./lib/verifyTelegramAuth.js'); console.log('lib OK')\"",
+    "prebuild": "npm run lint:paths"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/supabase-js": "^2.57.2",
     "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   }
 }
