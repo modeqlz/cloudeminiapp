@@ -1,115 +1,86 @@
-import crypto from 'crypto'
-
-function verifyTelegramAuth(initData) {
-  try {
-    const urlParams = new URLSearchParams(initData)
-    const hash = urlParams.get('hash')
-    urlParams.delete('hash')
-    
-    // Create data-check-string
-    const dataCheckString = [...urlParams.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, value]) => `${key}=${value}`)
-      .join('\n')
-    
-    const botToken = process.env.BOT_TOKEN || 'dummy-token-for-dev'
-    const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest()
-    const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex')
-    
-    const isValid = hash === calculatedHash
-    
-    // Parse user data
-    const userParam = urlParams.get('user')
-    let user = null
-    if (userParam) {
-      user = JSON.parse(userParam)
-    }
-    
-    return {
-      valid: isValid,
-      user: user
-    }
-  } catch (error) {
-    console.error('Telegram auth verification error:', error)
-    return {
-      valid: false,
-      user: null
-    }
-  }
-}
+import { validateInitData, parseInitData } from '../../../lib/verifyTelegramAuth';
+import { upsertUser } from '../../../lib/supabaseAdmin';
 
 export default async function handler(req, res) {
+  // Разрешаем только POST запросы
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
   try {
-    const { initData } = req.body
+    const { initData } = req.body;
     
+    // Проверяем наличие initData
     if (!initData) {
-      return res.status(400).json({ error: 'No init data provided' })
+      return res.status(400).json({ ok: false, error: 'No initData provided' });
     }
 
-    // Verify the Telegram data
-    const verification = verifyTelegramAuth(initData)
+    // Получаем токен бота из переменных окружения
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      console.error('❌ TELEGRAM_BOT_TOKEN не найден в переменных окружения');
+      return res.status(500).json({ ok: false, error: 'Server configuration error' });
+    }
+
+    // Проверяем подпись initData через библиотеку
+    const validation = validateInitData(initData, botToken, 86400); // 24 часа
     
-    if (!verification.valid) {
-      return res.status(400).json({ error: 'Invalid Telegram data' })
+    if (!validation.ok) {
+      console.log('❌ Проверка initData не прошла:', validation.reason);
+      return res.status(400).json({ ok: false, error: `Invalid initData: ${validation.reason}` });
     }
 
+    // Парсим данные пользователя из initData
+    const parsedData = parseInitData(initData);
+    let userData = null;
+
+    if (parsedData.user) {
+      try {
+        userData = JSON.parse(parsedData.user);
+      } catch (error) {
+        console.error('❌ Ошибка парсинга данных пользователя:', error);
+        return res.status(400).json({ ok: false, error: 'Invalid user data in initData' });
+      }
+    }
+
+    if (!userData || !userData.id) {
+      return res.status(400).json({ ok: false, error: 'No user data found in initData' });
+    }
+
+    // Подготавливаем данные для сохранения
     const userProfile = {
-      id: verification.user.id,
-      telegram_id: verification.user.id,
-      username: verification.user.username,
-      first_name: verification.user.first_name,
-      last_name: verification.user.last_name,
-      name: `${verification.user.first_name} ${verification.user.last_name || ''}`.trim(),
-      photo_url: verification.user.photo_url,
-      verified: false // You can set logic for verified users
-    }
+      telegram_id: userData.id,
+      username: userData.username || null,
+      first_name: userData.first_name || null,
+      last_name: userData.last_name || null,
+      name: `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Без имени',
+      avatar_url: userData.photo_url || '/placeholder.png'
+    };
 
-    console.log('🔐 Попытка логина пользователя:', {
+    console.log('🔐 Аутентификация пользователя:', {
       telegram_id: userProfile.telegram_id,
       username: userProfile.username,
       name: userProfile.name
-    })
+    });
 
-    // Try to save user to database (Supabase)
-    try {
-      console.log('💾 Попытка сохранения в базу данных...')
-      
-      // Check if Supabase environment variables are available
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        console.log('✅ Supabase настроен, используем базу данных')
-        
-        // Dynamic import to prevent errors if Supabase is not configured
-        const { saveUser } = await import('../../../lib/supabase')
-        const result = await saveUser(userProfile)
-        
-        if (result.ok) {
-          console.log('✅ Пользователь успешно сохранен в Supabase')
-        } else {
-          console.error('❌ Ошибка сохранения в Supabase:', result.error)
-        }
-      } else {
-        console.log('⚠️ Supabase не настроен, используем mock данные')
-        
-        // Fallback: add user to mock data
-        const { addUserToMockData } = await import('../searchUsersDB')
-        addUserToMockData(userProfile)
-        console.log('✅ Пользователь добавлен в mock данные')
-      }
-    } catch (dbError) {
-      console.error('❌ Критическая ошибка базы данных:', dbError)
-      // Still continue with login even if DB save fails
+    // Сохраняем/обновляем пользователя в базе данных
+    const result = await upsertUser(userProfile);
+    
+    if (!result.ok) {
+      console.error('❌ Ошибка сохранения пользователя:', result.error);
+      return res.status(500).json({ ok: false, error: result.error });
     }
 
-    res.status(200).json({
+    console.log('✅ Пользователь успешно аутентифицирован и сохранен');
+
+    // Возвращаем успешный результат
+    return res.status(200).json({
       ok: true,
-      profile: userProfile
-    })
+      profile: result.profile
+    });
+
   } catch (error) {
-    console.error('Auth error:', error)
-    res.status(500).json({ error: 'Authentication failed' })
+    console.error('❌ Критическая ошибка аутентификации:', error);
+    return res.status(500).json({ ok: false, error: 'Authentication failed' });
   }
 }
