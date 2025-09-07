@@ -1,7 +1,14 @@
-import { validateInitData, parseInitData } from '../../../lib/verifyTelegramAuth';
-import { upsertUser } from '../../../lib/supabaseAdmin';
+import { validateInitData, parseInitData } from '../../lib/verifyTelegramAuth';
+import { upsertUser } from '../../lib/supabaseAdmin';
 
 export default async function handler(req, res) {
+  // Логируем переменные окружения для диагностики
+  console.log('ENV OK', {
+    URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    SRK: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    BOT: !!process.env.TELEGRAM_BOT_TOKEN
+  });
+
   // Разрешаем только POST запросы
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
@@ -9,10 +16,11 @@ export default async function handler(req, res) {
 
   try {
     const { initData } = req.body;
+    console.log('initData length', (initData || '').length);
     
     // Проверяем наличие initData
     if (!initData) {
-      return res.status(400).json({ ok: false, error: 'No initData provided' });
+      return res.status(400).json({ ok: false, error: 'Missing initData' });
     }
 
     // Получаем токен бота из переменных окружения
@@ -27,7 +35,7 @@ export default async function handler(req, res) {
     
     if (!validation.ok) {
       console.log('❌ Проверка initData не прошла:', validation.reason);
-      return res.status(400).json({ ok: false, error: `Invalid initData: ${validation.reason}` });
+      return res.status(401).json({ ok: false, error: 'Bad signature' });
     }
 
     // Парсим данные пользователя из initData
@@ -67,8 +75,8 @@ export default async function handler(req, res) {
     const result = await upsertUser(userProfile);
     
     if (!result.ok) {
-      console.error('❌ Ошибка сохранения пользователя:', result.error);
-      return res.status(500).json({ ok: false, error: result.error });
+      console.error('Supabase upsert error:', result.error);
+      return res.status(500).json({ ok: false, error: 'Supabase upsert failed' });
     }
 
     console.log('✅ Пользователь успешно аутентифицирован и сохранен');

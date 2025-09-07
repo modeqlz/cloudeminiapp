@@ -48,6 +48,7 @@ export default function IndexPage() {
       if (!tg) { setError('Открой мини-апку из Telegram (кнопка «Открыть» в чате бота).'); return; }
 
       const initData = tg.initData || '';
+      console.log('initData length', (initData || '').length);
       if (!initData) { setError('Telegram не передал initData. Нажми ⋯ → «Обновить страницу».'); return; }
 
       const res = await minDelay(
