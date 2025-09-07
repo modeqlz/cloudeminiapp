@@ -52,7 +52,7 @@ export default function IndexPage() {
       if (!initData) { setError('Telegram не передал initData. Нажми ⋯ → «Обновить страницу».'); return; }
 
       const res = await minDelay(
-        fetch('/api/auth/telegram', {
+        fetch('/api/auth/telegram-new', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ initData })
