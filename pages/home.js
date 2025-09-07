@@ -104,54 +104,54 @@ export default function HomePage() {
 
           {/* grid tiles */}
           <div className="grid">
-            {/* Auctions */}
-            <a className="tile tile-auction" href="/auctions">
+            {/* Gift Store */}
+            <a className="tile tile-auction" href="/store">
               <div className="tile-head">
-                <div className="tile-title">🔥 Горячие аукционы</div>
-                <div className="tile-badge">Live</div>
+                <div className="tile-title">🎁 Магазин подарков</div>
+                <div className="tile-badge">New</div>
               </div>
               <div className="tile-desc">
-                Участвуй в битвах за легендарные скины. Кто больше заплатит — тот и забирает!
+                Коллекция уникальных NFT подарков. Выбирай и радуй друзей незабываемыми сюрпризами!
               </div>
             </a>
 
-            {/* Gifts */}
-            <a className="tile tile-gifts" href="/gifts">
+            {/* Send Gifts */}
+            <a className="tile tile-gifts" href="/send">
               <div className="tile-head">
-                <div className="tile-title">🎁 Магазин скинов</div>
+                <div className="tile-title">💌 Отправить подарок</div>
               </div>
               <div className="tile-desc">
-                Коллекция эксклюзивных скинов для CS:GO, Valorant, Dota 2. Покупай и дари друзьям!
+                Создай особенный момент! Отправь NFT подарок другу и покажи, как он важен для тебя.
               </div>
             </a>
 
-            {/* Plans */}
-            <a className="tile tile-plans" href="/plans">
+            {/* Premium */}
+            <a className="tile tile-plans" href="/premium">
               <div className="tile-head">
-                <div className="tile-title">⭐ VIP статусы</div>
+                <div className="tile-title">⭐ Premium статус</div>
               </div>
               <ul className="tile-list">
-                <li>🆓 Новичок — первые шаги в трейдинге</li>
-                <li>🥉 Трейдер — больше возможностей</li>
-                <li>🥇 Про-игрок — максимум привилегий</li>
+                <li>🆓 Базовый — 5 подарков в день</li>
+                <li>🥉 Premium — безлимитные подарки</li>
+                <li>🥇 VIP — эксклюзивные NFT</li>
               </ul>
             </a>
 
-            {/* My purchases */}
-            <a className="tile tile-orders" href="/orders">
+            {/* My Collection */}
+            <a className="tile tile-orders" href="/collection">
               <div className="tile-head">
-                <div className="tile-title">📦 Мои скины</div>
+                <div className="tile-title">💎 Моя коллекция</div>
               </div>
-              <div className="tile-desc">Твоя коллекция скинов и история всех сделок в одном месте.</div>
+              <div className="tile-desc">Твои NFT подарки и история всех отправленных сюрпризов.</div>
             </a>
 
             {/* Search People */}
             <div className="tile tile-search" onClick={() => setShowSearch(true)} style={{cursor: 'pointer'}}>
               <div className="tile-head">
-                <div className="tile-title">🔍 Поиск игроков</div>
+                <div className="tile-title">🔍 Найти друзей</div>
               </div>
               <div className="tile-desc">
-                Найди других трейдеров и коллекционеров по @никнейму. Начни обмен прямо сейчас!
+                Найди друзей по @никнейму и подари им что-то особенное. Сделай их день ярче!
               </div>
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function HomePage() {
             <div className="overlay-backdrop" />
             <div className="overlay-panel" onClick={(e) => e.stopPropagation()}>
               <div className="brand" style={{justifyContent:'space-between', width:'100%', marginBottom: 20}}>
-                <span>🔍 Поиск трейдеров</span>
+                <span>🔍 Поиск друзей</span>
                 <button className="btn btn-ghost" onClick={closeSearch} style={{padding: '8px'}}>✕</button>
               </div>
 
@@ -176,10 +176,10 @@ export default function HomePage() {
                     transform: 'translateY(-50%)',
                     fontSize: '16px',
                     color: 'var(--muted)'
-                  }}>🎮</span>
+                  }}>🎁</span>
                   <input
                     type="text"
-                    placeholder="Найди игрока по @никнейму или имени..."
+                    placeholder="Найди друга по @никнейму и подари ему NFT..."
                     value={searchQuery}
                     onChange={handleSearchChange}
                     autoFocus
@@ -197,7 +197,7 @@ export default function HomePage() {
                   />
                 </div>
                 <div style={{fontSize: '12px', color: 'var(--muted)', marginTop: '8px', textAlign: 'center'}}>
-                  💡 Ищи коллекционеров скинов и начинай обмен
+                  💝 Найди друзей и удиви их уникальными NFT подарками
                 </div>
               </div>
 
@@ -205,14 +205,14 @@ export default function HomePage() {
                 {isSearching && (
                   <div style={{textAlign: 'center', padding: '30px', color: 'var(--muted)'}}>
                     <div style={{fontSize: '24px', marginBottom: '8px'}}>🔄</div>
-                    <div>Ищем игроков...</div>
+                    <div>Ищем друзей...</div>
                   </div>
                 )}
                 
                 {!isSearching && searchQuery.length >= 2 && searchResults.length === 0 && (
                   <div style={{textAlign: 'center', padding: '30px', color: 'var(--muted)'}}>
                     <div style={{fontSize: '24px', marginBottom: '8px'}}>😕</div>
-                    <div><strong>Игроки не найдены</strong></div>
+                    <div><strong>Друзья не найдены</strong></div>
                     <div style={{fontSize: '12px', marginTop: '4px'}}>
                       Попробуй другой @никнейм или имя
                     </div>
@@ -222,7 +222,7 @@ export default function HomePage() {
                 {!isSearching && searchResults.length > 0 && (
                   <div>
                     <div style={{fontSize: '12px', color: 'var(--muted)', marginBottom: '12px', textAlign: 'center'}}>
-                      🎯 Найдено {searchResults.length} {searchResults.length === 1 ? 'игрок' : 'игроков'}
+                      🎯 Найдено {searchResults.length} {searchResults.length === 1 ? 'друг' : 'друзей'}
                     </div>
                     {searchResults.map((user, index) => (
                       <div key={index} style={{
@@ -284,7 +284,7 @@ export default function HomePage() {
                             fontSize: '15px',
                             marginBottom: '2px'
                           }}>
-                            {user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Игрок'}
+                            {user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Друг'}
                           </div>
                           <div style={{fontSize: '13px', color: 'var(--muted)'}}>
                             @{user.username}
@@ -298,7 +298,7 @@ export default function HomePage() {
                           fontWeight: '600',
                           color: 'white'
                         }}>
-                          💬 Написать
+                          🎁 Подарить
                         </div>
                       </div>
                     ))}
