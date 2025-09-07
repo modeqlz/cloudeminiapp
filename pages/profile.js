@@ -121,28 +121,309 @@ export default function ProfilePage() {
       <Head><title>Профиль — Spectra Market</title></Head>
       <div className="container">
         <div className="hero" style={{maxWidth:560}}>
-          <div className="brand" style={{justifyContent:'space-between', width:'100%'}}>
-            <span>Профиль</span>
-            <button className="btn btn-ghost" onClick={handleLogout}>Выйти</button>
+          {/* Header */}
+          <div className="brand" style={{justifyContent:'space-between', width:'100%', marginBottom: 24}}>
+            <span style={{fontSize: '20px', fontWeight: '700'}}>🎨 Мой профиль</span>
+            <button className="btn btn-ghost" onClick={handleLogout} style={{
+              background: 'rgba(255,77,77,0.1)',
+              color: '#ff4d4d',
+              border: '1px solid rgba(255,77,77,0.2)',
+              borderRadius: '12px',
+              padding: '8px 16px',
+              fontSize: '14px'
+            }}>
+              🚪 Выйти
+            </button>
           </div>
 
-          <div style={{display:'flex', alignItems:'center', gap:14, marginTop:6}}>
-            <img
-              src={avatar}
-              alt="avatar"
-              style={{
-                width:56, height:56, borderRadius:16,
-                objectFit:'cover', border:'1px solid var(--border)'
-              }}
-            />
-            <div>
-              <div className="h1" style={{fontSize:22, margin:'0 0 4px'}}>{name}</div>
-              <div className="lead" style={{fontSize:14, margin:0}}>{at}</div>
+          {/* Profile Card */}
+          <div style={{
+            background: 'linear-gradient(135deg, var(--card) 0%, rgba(var(--brand-rgb), 0.05) 100%)',
+            border: '1px solid var(--border)',
+            borderRadius: '24px',
+            padding: '32px',
+            marginBottom: '24px',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Background decoration */}
+            <div style={{
+              position: 'absolute',
+              top: '-50%',
+              right: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'radial-gradient(circle, rgba(var(--brand-rgb), 0.03) 0%, transparent 70%)',
+              pointerEvents: 'none'
+            }} />
+            
+            {/* Profile info */}
+            <div style={{position: 'relative', zIndex: 1}}>
+              <div style={{display:'flex', alignItems:'center', gap: 20, marginBottom: 24}}>
+                <div style={{position: 'relative'}}>
+                  <img
+                    src={avatar}
+                    alt="avatar"
+                    style={{
+                      width: 80, 
+                      height: 80, 
+                      borderRadius: '20px',
+                      objectFit:'cover', 
+                      border:'3px solid var(--brand)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+                    }}
+                  />
+                  {/* Verified badge */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '-4px',
+                    right: '-4px',
+                    background: 'var(--brand)',
+                    borderRadius: '50%',
+                    width: '24px',
+                    height: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid var(--card)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                  }}>
+                    <span style={{color: 'white', fontSize: '12px', fontWeight: 'bold'}}>✓</span>
+                  </div>
+                </div>
+                
+                <div style={{flex: 1}}>
+                  <div style={{
+                    fontSize: '24px', 
+                    fontWeight: '700', 
+                    color: 'var(--text)',
+                    marginBottom: '4px',
+                    letterSpacing: '-0.5px'
+                  }}>
+                    {name}
+                  </div>
+                  <div style={{
+                    fontSize: '16px', 
+                    color: 'var(--brand)',
+                    fontWeight: '600',
+                    marginBottom: '8px'
+                  }}>
+                    {at}
+                  </div>
+                  <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: 'rgba(var(--brand-rgb), 0.1)',
+                    color: 'var(--brand)',
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    fontSize: '12px',
+                    fontWeight: '600'
+                  }}>
+                    💎 NFT Коллекционер
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '16px',
+                marginBottom: '24px'
+              }}>
+                <div style={{
+                  textAlign: 'center',
+                  padding: '16px',
+                  background: 'rgba(var(--brand-rgb), 0.05)',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(var(--brand-rgb), 0.1)'
+                }}>
+                  <div style={{fontSize: '20px', fontWeight: '700', color: 'var(--brand)', marginBottom: '4px'}}>
+                    12
+                  </div>
+                  <div style={{fontSize: '12px', color: 'var(--muted)', fontWeight: '500'}}>
+                    🎁 NFT в коллекции
+                  </div>
+                </div>
+                
+                <div style={{
+                  textAlign: 'center',
+                  padding: '16px',
+                  background: 'rgba(255, 193, 7, 0.05)',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(255, 193, 7, 0.1)'
+                }}>
+                  <div style={{fontSize: '20px', fontWeight: '700', color: '#ffc107', marginBottom: '4px'}}>
+                    8
+                  </div>
+                  <div style={{fontSize: '12px', color: 'var(--muted)', fontWeight: '500'}}>
+                    🚀 Отправлено
+                  </div>
+                </div>
+                
+                <div style={{
+                  textAlign: 'center',
+                  padding: '16px',
+                  background: 'rgba(40, 167, 69, 0.05)',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(40, 167, 69, 0.1)'
+                }}>
+                  <div style={{fontSize: '20px', fontWeight: '700', color: '#28a745', marginBottom: '4px'}}>
+                    ⭐
+                  </div>
+                  <div style={{fontSize: '12px', color: 'var(--muted)', fontWeight: '500'}}>
+                    Premium статус
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Activity */}
+              <div style={{
+                background: 'var(--card)',
+                borderRadius: '16px',
+                padding: '20px',
+                border: '1px solid var(--border)'
+              }}>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: 'var(--text)',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  🔥 Последняя активность
+                </div>
+                
+                <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px',
+                    background: 'rgba(var(--brand-rgb), 0.03)',
+                    borderRadius: '12px'
+                  }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(45deg, #667eea 0%, #764ba2 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px'
+                    }}>🎨</div>
+                    <div style={{flex: 1}}>
+                      <div style={{fontSize: '14px', fontWeight: '600', color: 'var(--text)'}}>
+                        Получен редкий NFT "Cosmic Cat"
+                      </div>
+                      <div style={{fontSize: '12px', color: 'var(--muted)'}}>
+                        2 часа назад
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px',
+                    background: 'rgba(40, 167, 69, 0.03)',
+                    borderRadius: '12px'
+                  }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px'
+                    }}>🚀</div>
+                    <div style={{flex: 1}}>
+                      <div style={{fontSize: '14px', fontWeight: '600', color: 'var(--text)'}}>
+                        Отправлен NFT @username123
+                      </div>
+                      <div style={{fontSize: '12px', color: 'var(--muted)'}}>
+                        1 день назад
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="row" style={{marginTop:20}}>
-            <a className="btn btn-ghost" href="/home">Назад к меню</a>
+          {/* Action Buttons */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '12px',
+            marginBottom: '20px'
+          }}>
+            <a 
+              href="/collection" 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '16px',
+                background: 'linear-gradient(135deg, var(--brand) 0%, rgba(var(--brand-rgb), 0.8) 100%)',
+                color: 'white',
+                borderRadius: '16px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                fontSize: '14px',
+                transition: 'all 0.2s ease',
+                border: 'none',
+                boxShadow: '0 4px 16px rgba(var(--brand-rgb), 0.3)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)'
+                e.target.style.boxShadow = '0 6px 24px rgba(var(--brand-rgb), 0.4)'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)'
+                e.target.style.boxShadow = '0 4px 16px rgba(var(--brand-rgb), 0.3)'
+              }}
+            >
+              💎 Моя коллекция
+            </a>
+            
+            <a 
+              href="/home" 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '16px',
+                background: 'var(--card)',
+                color: 'var(--text)',
+                borderRadius: '16px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                fontSize: '14px',
+                transition: 'all 0.2s ease',
+                border: '1px solid var(--border)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)'
+                e.target.style.borderColor = 'var(--brand)'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)'
+                e.target.style.borderColor = 'var(--border)'
+              }}
+            >
+              🏠 Главное меню
+            </a>
           </div>
         </div>
       </div>

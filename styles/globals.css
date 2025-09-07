@@ -10,6 +10,7 @@ html, body, #__next { height: 100%; }
   --text: #e9eef7;
   --muted: rgba(233,238,247,.75);
   --brand: #7bc7ff;   /* Telegram blue */
+  --brand-rgb: 123, 199, 255;  /* RGB values for gradients */
   --accent: #b7a3ff;  /* Gift accent */
   --btn-dark: #0f1726;
 }
@@ -219,3 +220,4 @@ body{
 .tile-search{
   background: var(--panel) !important;
 }
+
