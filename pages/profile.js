@@ -78,16 +78,33 @@ export default function ProfilePage() {
     const container = e.target;
     const cardWidth = 156; // 140px + 16px gap
     const scrollLeft = container.scrollLeft;
-    const newSlide = Math.round(scrollLeft / cardWidth);
-    setCurrentSlide(newSlide);
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+    
+    // Если дошли до конца - показываем последний индикатор
+    if (scrollLeft >= maxScrollLeft - 10) {
+      setCurrentSlide(3);
+    } else {
+      const newSlide = Math.min(3, Math.max(0, Math.round(scrollLeft / cardWidth)));
+      setCurrentSlide(newSlide);
+    }
   };
 
   const scrollToSlide = (slideIndex) => {
     const container = document.querySelector('.stats-scroll');
     if (container) {
       const cardWidth = 156; // 140px + 16px gap
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      
+      let targetScroll;
+      if (slideIndex === 3) {
+        // Для последнего слайда - прокручиваем до самого конца
+        targetScroll = maxScrollLeft;
+      } else {
+        targetScroll = slideIndex * cardWidth;
+      }
+      
       container.scrollTo({
-        left: slideIndex * cardWidth,
+        left: targetScroll,
         behavior: 'smooth'
       });
       setCurrentSlide(slideIndex);
