@@ -68,22 +68,39 @@ export default async function handler(req, res) {
       verified: false // You can set logic for verified users
     }
 
+    console.log('🔐 Попытка логина пользователя:', {
+      telegram_id: userProfile.telegram_id,
+      username: userProfile.username,
+      name: userProfile.name
+    })
+
     // Try to save user to database (Supabase)
     try {
+      console.log('💾 Попытка сохранения в базу данных...')
+      
       // Check if Supabase environment variables are available
       if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        console.log('✅ Supabase настроен, используем базу данных')
+        
         // Dynamic import to prevent errors if Supabase is not configured
         const { saveUser } = await import('../../../lib/supabase')
-        await saveUser(userProfile)
-        console.log('User saved to Supabase database')
+        const result = await saveUser(userProfile)
+        
+        if (result.ok) {
+          console.log('✅ Пользователь успешно сохранен в Supabase')
+        } else {
+          console.error('❌ Ошибка сохранения в Supabase:', result.error)
+        }
       } else {
+        console.log('⚠️ Supabase не настроен, используем mock данные')
+        
         // Fallback: add user to mock data
         const { addUserToMockData } = await import('../searchUsersDB')
         addUserToMockData(userProfile)
-        console.log('User added to mock data (Supabase not configured)')
+        console.log('✅ Пользователь добавлен в mock данные')
       }
     } catch (dbError) {
-      console.error('Database operation failed:', dbError)
+      console.error('❌ Критическая ошибка базы данных:', dbError)
       // Still continue with login even if DB save fails
     }
 
