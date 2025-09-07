@@ -226,56 +226,213 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Stats */}
+              {/* Stats - Horizontal Scroll */}
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '16px',
                 marginBottom: '24px'
               }}>
-                <div style={{
-                  textAlign: 'center',
-                  padding: '16px',
-                  background: 'rgba(var(--brand-rgb), 0.05)',
-                  borderRadius: '16px',
-                  border: '1px solid rgba(var(--brand-rgb), 0.1)'
+                <div className="stats-scroll" style={{
+                  display: 'flex',
+                  gap: '16px',
+                  overflowX: 'auto',
+                  paddingBottom: '8px'
                 }}>
-                  <div style={{fontSize: '20px', fontWeight: '700', color: 'var(--brand)', marginBottom: '4px'}}>
-                    12
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    background: 'rgba(var(--brand-rgb), 0.05)',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(var(--brand-rgb), 0.1)',
+                    minWidth: '140px',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-4px)'
+                    e.target.style.boxShadow = '0 8px 32px rgba(var(--brand-rgb), 0.2)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)'
+                    e.target.style.boxShadow = 'none'
+                  }}
+                  >
+                    <div style={{fontSize: '24px', fontWeight: '800', color: 'var(--brand)', marginBottom: '8px'}}>
+                      12
+                    </div>
+                    <div style={{fontSize: '13px', color: 'var(--muted)', fontWeight: '600', lineHeight: '1.2'}}>
+                      🎁 NFT в<br/>коллекции
+                    </div>
                   </div>
-                  <div style={{fontSize: '12px', color: 'var(--muted)', fontWeight: '500'}}>
-                    🎁 NFT в коллекции
+                  
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    background: 'rgba(255, 193, 7, 0.05)',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(255, 193, 7, 0.1)',
+                    minWidth: '140px',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-4px)'
+                    e.target.style.boxShadow = '0 8px 32px rgba(255, 193, 7, 0.2)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)'
+                    e.target.style.boxShadow = 'none'
+                  }}
+                  >
+                    <div style={{fontSize: '24px', fontWeight: '800', color: '#ffc107', marginBottom: '8px'}}>
+                      8
+                    </div>
+                    <div style={{fontSize: '13px', color: 'var(--muted)', fontWeight: '600', lineHeight: '1.2'}}>
+                      🚀 Отправлено<br/>друзьям
+                    </div>
+                  </div>
+                  
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    background: 'rgba(40, 167, 69, 0.05)',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(40, 167, 69, 0.1)',
+                    minWidth: '140px',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-4px)'
+                    e.target.style.boxShadow = '0 8px 32px rgba(40, 167, 69, 0.2)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)'
+                    e.target.style.boxShadow = 'none'
+                  }}
+                  >
+                    <div style={{fontSize: '24px', fontWeight: '800', color: '#28a745', marginBottom: '8px'}}>
+                      ⭐
+                    </div>
+                    <div style={{fontSize: '13px', color: 'var(--muted)', fontWeight: '600', lineHeight: '1.2'}}>
+                      Premium<br/>статус
+                    </div>
+                  </div>
+
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    background: 'rgba(138, 43, 226, 0.05)',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(138, 43, 226, 0.1)',
+                    minWidth: '140px',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-4px)'
+                    e.target.style.boxShadow = '0 8px 32px rgba(138, 43, 226, 0.2)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)'
+                    e.target.style.boxShadow = 'none'
+                  }}
+                  >
+                    <div style={{fontSize: '24px', fontWeight: '800', color: '#8a2be2', marginBottom: '8px'}}>
+                      24
+                    </div>
+                    <div style={{fontSize: '13px', color: 'var(--muted)', fontWeight: '600', lineHeight: '1.2'}}>
+                      🏆 Рейтинг<br/>в топе
+                    </div>
+                  </div>
+
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    background: 'rgba(220, 20, 60, 0.05)',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(220, 20, 60, 0.1)',
+                    minWidth: '140px',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-4px)'
+                    e.target.style.boxShadow = '0 8px 32px rgba(220, 20, 60, 0.2)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)'
+                    e.target.style.boxShadow = 'none'
+                  }}
+                  >
+                    <div style={{fontSize: '24px', fontWeight: '800', color: '#dc143c', marginBottom: '8px'}}>
+                      5.2k
+                    </div>
+                    <div style={{fontSize: '13px', color: 'var(--muted)', fontWeight: '600', lineHeight: '1.2'}}>
+                      💰 Общая<br/>стоимость
+                    </div>
+                  </div>
+
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    background: 'rgba(255, 165, 0, 0.05)',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(255, 165, 0, 0.1)',
+                    minWidth: '140px',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-4px)'
+                    e.target.style.boxShadow = '0 8px 32px rgba(255, 165, 0, 0.2)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)'
+                    e.target.style.boxShadow = 'none'
+                  }}
+                  >
+                    <div style={{fontSize: '24px', fontWeight: '800', color: '#ffa500', marginBottom: '8px'}}>
+                      3
+                    </div>
+                    <div style={{fontSize: '13px', color: 'var(--muted)', fontWeight: '600', lineHeight: '1.2'}}>
+                      🔥 Редкие<br/>NFT
+                    </div>
                   </div>
                 </div>
                 
+                {/* Scroll indicator */}
                 <div style={{
-                  textAlign: 'center',
-                  padding: '16px',
-                  background: 'rgba(255, 193, 7, 0.05)',
-                  borderRadius: '16px',
-                  border: '1px solid rgba(255, 193, 7, 0.1)'
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  marginTop: '12px'
                 }}>
-                  <div style={{fontSize: '20px', fontWeight: '700', color: '#ffc107', marginBottom: '4px'}}>
-                    8
-                  </div>
-                  <div style={{fontSize: '12px', color: 'var(--muted)', fontWeight: '500'}}>
-                    🚀 Отправлено
-                  </div>
-                </div>
-                
-                <div style={{
-                  textAlign: 'center',
-                  padding: '16px',
-                  background: 'rgba(40, 167, 69, 0.05)',
-                  borderRadius: '16px',
-                  border: '1px solid rgba(40, 167, 69, 0.1)'
-                }}>
-                  <div style={{fontSize: '20px', fontWeight: '700', color: '#28a745', marginBottom: '4px'}}>
-                    ⭐
-                  </div>
-                  <div style={{fontSize: '12px', color: 'var(--muted)', fontWeight: '500'}}>
-                    Premium статус
-                  </div>
+                  <div style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: 'var(--brand)',
+                    opacity: 0.8
+                  }} />
+                  <div style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: 'var(--muted)',
+                    opacity: 0.3
+                  }} />
+                  <div style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: 'var(--muted)',
+                    opacity: 0.3
+                  }} />
                 </div>
               </div>
 

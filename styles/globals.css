@@ -221,3 +221,20 @@ body{
   background: var(--panel) !important;
 }
 
+/* ======= PROFILE STATS SCROLL ======= */
+/* Hide scrollbar for Chrome, Safari and Opera */
+.stats-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.stats-scroll {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Smooth scroll behavior */
+.stats-scroll {
+  scroll-behavior: smooth;
+}
+
