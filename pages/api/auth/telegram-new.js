@@ -59,10 +59,9 @@ async function upsertUser(profile) {
   });
 
   try {
-    // Добавляем updated_at для отслеживания изменений
+    // Используем профиль как есть (без updated_at если колонки нет)
     const userRecord = {
-      ...profile,
-      updated_at: new Date().toISOString()
+      ...profile
     };
 
     const { data, error } = await supabaseAdmin

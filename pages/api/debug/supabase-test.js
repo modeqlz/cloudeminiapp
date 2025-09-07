@@ -78,8 +78,7 @@ export default async function handler(req, res) {
       first_name: 'Emergency',
       last_name: 'Test',
       name: 'Emergency Test',
-      avatar_url: '/placeholder.png',
-      updated_at: new Date().toISOString()
+      avatar_url: '/placeholder.png'
     };
 
     const { data: upsertResult, error: upsertError } = await supabase
