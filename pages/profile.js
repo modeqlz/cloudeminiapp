@@ -18,6 +18,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [busy, setBusy] = useState(true);
   const [msg, setMsg] = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -72,6 +73,26 @@ export default function ProfilePage() {
     // уходим на главную так, чтобы нельзя было вернуться «Назад»
     window.location.replace('/');
   }
+
+  const handleScroll = (e) => {
+    const container = e.target;
+    const cardWidth = 156; // 140px + 16px gap
+    const scrollLeft = container.scrollLeft;
+    const newSlide = Math.round(scrollLeft / cardWidth);
+    setCurrentSlide(newSlide);
+  };
+
+  const scrollToSlide = (slideIndex) => {
+    const container = document.querySelector('.stats-scroll');
+    if (container) {
+      const cardWidth = 156; // 140px + 16px gap
+      container.scrollTo({
+        left: slideIndex * cardWidth,
+        behavior: 'smooth'
+      });
+      setCurrentSlide(slideIndex);
+    }
+  };
 
   if (busy) {
     return (
@@ -230,12 +251,16 @@ export default function ProfilePage() {
               <div style={{
                 marginBottom: '24px'
               }}>
-                <div className="stats-scroll" style={{
-                  display: 'flex',
-                  gap: '16px',
-                  overflowX: 'auto',
-                  paddingBottom: '8px'
-                }}>
+                <div 
+                  className="stats-scroll" 
+                  onScroll={handleScroll}
+                  style={{
+                    display: 'flex',
+                    gap: '16px',
+                    overflowX: 'auto',
+                    paddingBottom: '8px'
+                  }}
+                >
                   <div style={{
                     textAlign: 'center',
                     padding: '20px',
@@ -405,34 +430,41 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 
-                {/* Scroll indicator */}
+                {/* Scroll indicators */}
                 <div style={{
                   display: 'flex',
                   justifyContent: 'center',
-                  gap: '4px',
+                  gap: '8px',
                   marginTop: '12px'
                 }}>
-                  <div style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: 'var(--brand)',
-                    opacity: 0.8
-                  }} />
-                  <div style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: 'var(--muted)',
-                    opacity: 0.3
-                  }} />
-                  <div style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: 'var(--muted)',
-                    opacity: 0.3
-                  }} />
+                  {[0, 1, 2, 3].map((index) => (
+                    <div
+                      key={index}
+                      onClick={() => scrollToSlide(index)}
+                      style={{
+                        width: currentSlide === index ? '20px' : '8px',
+                        height: '8px',
+                        borderRadius: '4px',
+                        background: currentSlide === index ? 'var(--brand)' : 'var(--muted)',
+                        opacity: currentSlide === index ? 1 : 0.3,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        transform: currentSlide === index ? 'scale(1.1)' : 'scale(1)'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (currentSlide !== index) {
+                          e.target.style.opacity = '0.6'
+                          e.target.style.transform = 'scale(1.05)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (currentSlide !== index) {
+                          e.target.style.opacity = '0.3'
+                          e.target.style.transform = 'scale(1)'
+                        }
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
 
