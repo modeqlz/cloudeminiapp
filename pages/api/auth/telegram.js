@@ -1,49 +1,8 @@
-import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
+// ИСПОЛЬЗУЕМ ВНЕШНИЕ ИМПОРТЫ КАК ТРЕБУЕТСЯ
+import { supabaseAdmin } from '../../lib/supabaseAdmin';
+import { verifyTelegramAuth } from '../../lib/verifyTelegramAuth';
 
-// VERCEL FIX 2024-01-16: All functions inlined to avoid import issues
-// Supabase Admin Client
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } }
-);
-
-// Функция проверки Telegram WebApp initData
-function verifyTelegramAuth(initData, botToken) {
-  const params = new URLSearchParams(initData || '');
-  const data = {};
-  for (const [k, v] of params.entries()) data[k] = v;
-
-  const hash = data.hash;
-  if (!hash) return { ok: false, reason: 'Missing hash' };
-  delete data.hash;
-
-  const checkString = Object.keys(data)
-    .sort()
-    .map((k) => `${k}=${data[k]}`)
-    .join('\n');
-
-  const secretKey = crypto.createHmac('sha256', 'WebAppData')
-    .update(botToken)
-    .digest();
-
-  const computed = crypto.createHmac('sha256', secretKey)
-    .update(checkString)
-    .digest('hex');
-
-  const ok = computed === hash;
-  const user = data.user ? JSON.parse(data.user) : null;
-  return { ok, user, reason: ok ? null : 'Bad signature' };
-}
-
-// Функция upsert пользователя
-async function upsertUser(profile) {
-  const { error } = await supabaseAdmin
-    .from('users')
-    .upsert(profile, { onConflict: 'telegram_id' });
-  if (error) throw error;
-}
+// Импорты должны работать, функции удаляем (используем из lib/)
 
 export default async function handler(req, res) {
   // Логируем переменные окружения для диагностики
@@ -87,35 +46,76 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'No user data found in initData' });
     }
 
-    // Подготавливаем данные для сохранения
-    const userProfile = {
-      telegram_id: userData.id,
-      username: userData.username || null,
-      first_name: userData.first_name || null,
-      last_name: userData.last_name || null,
-      name: `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Без имени',
-      avatar_url: userData.photo_url || '/placeholder.png'
+    // Парсим telegram_id в число как требуется
+    const telegramId = Number(userData.id);
+    
+    // Подготавливаем данные для сохранения (правильный формат)
+    const profile = {
+      telegram_id: telegramId,
+      username: userData.username ?? null,
+      first_name: userData.first_name ?? null,
+      last_name: userData.last_name ?? null,
+      name: [userData.first_name, userData.last_name].filter(Boolean).join(' ') || userData.username || 'User',
+      avatar_url: userData.photo_url ?? '/placeholder.png'
     };
 
     console.log('🔐 Аутентификация пользователя:', {
-      telegram_id: userProfile.telegram_id,
-      username: userProfile.username,
-      name: userProfile.name
+      telegram_id: profile.telegram_id,
+      username: profile.username,
+      name: profile.name
     });
 
-    // Сохраняем/обновляем пользователя в базе данных
+    // Сохраняем/обновляем пользователя в базе данных (Supabase JS v2 синтаксис)
     try {
-      await upsertUser(userProfile);
+      const { error } = await supabaseAdmin
+        .from('users')
+        .upsert(profile, { onConflict: 'telegram_id' });
+
+      if (error) {
+        // МАКСИМАЛЬНО ПОДРОБНЫЙ ВЫВОД ОШИБКИ (24h диагностика)
+        console.error('❌ ДЕТАЛЬНАЯ ОШИБКА SUPABASE:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          table: 'users',
+          operation: 'upsert',
+          profile: profile,
+          fullError: error
+        });
+        
+        return res.status(500).json({ 
+          ok: false, 
+          error: 'Supabase upsert failed',
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+      }
+
       console.log('✅ Пользователь успешно аутентифицирован и сохранен');
       
       // Возвращаем успешный результат
       return res.status(200).json({
         ok: true,
-        profile: userProfile
+        profile: profile
       });
     } catch (error) {
-      console.error('Supabase upsert error:', error);
-      return res.status(500).json({ ok: false, error: 'Supabase upsert failed' });
+      // ДЕТАЛЬНАЯ ДИАГНОСТИКА КРИТИЧЕСКИХ ОШИБОК
+      console.error('❌ КРИТИЧЕСКАЯ ОШИБКА UPSERT:', {
+        errorType: error.constructor.name,
+        message: error.message,
+        stack: error.stack,
+        profile: profile
+      });
+      
+      return res.status(500).json({ 
+        ok: false, 
+        error: 'Supabase upsert failed',
+        type: error.constructor.name,
+        message: error.message
+      });
     }
 
   } catch (error) {
