@@ -70,31 +70,20 @@ export default async function handler(req, res) {
 
     // Try to save user to database (Supabase)
     try {
-      console.log('[telegram auth] Checking Supabase configuration...');
-      console.log('[telegram auth] SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'NOT SET');
-      console.log('[telegram auth] SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET');
-      
       // Check if Supabase environment variables are available
       if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        console.log('[telegram auth] Using Supabase database');
         // Dynamic import to prevent errors if Supabase is not configured
         const { saveUser } = await import('../../../lib/supabase')
-        const result = await saveUser(userProfile)
-        
-        if (result.ok) {
-          console.log('[telegram auth] User saved to Supabase database successfully')
-        } else {
-          console.error('[telegram auth] Failed to save user to Supabase:', result.error)
-        }
+        await saveUser(userProfile)
+        console.log('User saved to Supabase database')
       } else {
         // Fallback: add user to mock data
-        console.log('[telegram auth] Using mock data (Supabase not configured)');
         const { addUserToMockData } = await import('../searchUsersDB')
         addUserToMockData(userProfile)
-        console.log('[telegram auth] User added to mock data')
+        console.log('User added to mock data (Supabase not configured)')
       }
     } catch (dbError) {
-      console.error('[telegram auth] Database operation failed:', dbError)
+      console.error('Database operation failed:', dbError)
       // Still continue with login even if DB save fails
     }
 
