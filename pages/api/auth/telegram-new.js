@@ -43,10 +43,19 @@ async function upsertUser(profile) {
 }
 
 export default async function handler(req, res) {
-  console.log('ENV OK', {
+  // Детальная диагностика переменных окружения
+  const envStatus = {
     URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
     SRK: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    BOT: !!process.env.TELEGRAM_BOT_TOKEN
+    BOT: !!process.env.TELEGRAM_BOT_TOKEN,
+    NODE_ENV: process.env.NODE_ENV
+  };
+  
+  console.log('ENV DETAILED CHECK:', {
+    ...envStatus,
+    URL_preview: process.env.NEXT_PUBLIC_SUPABASE_URL ? `${process.env.NEXT_PUBLIC_SUPABASE_URL.substring(0, 30)}...` : 'MISSING',
+    SRK_preview: process.env.SUPABASE_SERVICE_ROLE_KEY ? `${process.env.SUPABASE_SERVICE_ROLE_KEY.substring(0, 30)}...` : 'MISSING',
+    BOT_preview: process.env.TELEGRAM_BOT_TOKEN ? `${process.env.TELEGRAM_BOT_TOKEN.substring(0, 30)}...` : 'MISSING'
   });
 
   if (req.method !== 'POST') {
@@ -64,7 +73,16 @@ export default async function handler(req, res) {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     if (!botToken) {
       console.error('❌ TELEGRAM_BOT_TOKEN не найден в переменных окружения');
-      return res.status(500).json({ ok: false, error: 'Server configuration error' });
+      console.error('❌ Доступные переменные:', Object.keys(process.env).filter(k => k.includes('TELEGRAM')));
+      
+      // Возвращаем развернутую ошибку с диагностикой
+      return res.status(500).json({ 
+        ok: false, 
+        error: 'TELEGRAM_BOT_TOKEN not configured in Vercel',
+        env_status: envStatus,
+        help: 'Add TELEGRAM_BOT_TOKEN in Vercel → Settings → Environment Variables → Production',
+        debug_url: '/api/debug/env'
+      });
     }
 
     const validation = verifyTelegramAuth(initData, botToken);
