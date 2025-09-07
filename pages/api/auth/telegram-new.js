@@ -2,10 +2,26 @@ import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
 // CLEAN VERCEL BUILD - NO EXTERNAL IMPORTS
+// Проверяем переменные окружения при создании клиента
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  console.error('❌ NEXT_PUBLIC_SUPABASE_URL отсутствует');
+}
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('❌ SUPABASE_SERVICE_ROLE_KEY отсутствует');
+}
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } }
+  { 
+    auth: { 
+      persistSession: false,
+      autoRefreshToken: false 
+    },
+    db: {
+      schema: 'public'
+    }
+  }
 );
 
 function verifyTelegramAuth(initData, botToken) {
@@ -36,10 +52,44 @@ function verifyTelegramAuth(initData, botToken) {
 }
 
 async function upsertUser(profile) {
-  const { error } = await supabaseAdmin
-    .from('users')
-    .upsert(profile, { onConflict: 'telegram_id' });
-  if (error) throw error;
+  console.log('💾 Попытка upsert пользователя:', {
+    telegram_id: profile.telegram_id,
+    username: profile.username,
+    name: profile.name
+  });
+
+  try {
+    // Добавляем updated_at для отслеживания изменений
+    const userRecord = {
+      ...profile,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .upsert(userRecord, { 
+        onConflict: 'telegram_id',
+        ignoreDuplicates: false 
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('❌ Детальная ошибка Supabase:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw new Error(`Supabase error: ${error.message} (${error.code})`);
+    }
+
+    console.log('✅ Пользователь успешно сохранен:', data?.id);
+    return data;
+  } catch (err) {
+    console.error('❌ Критическая ошибка upsert:', err);
+    throw err;
+  }
 }
 
 export default async function handler(req, res) {
@@ -113,16 +163,26 @@ export default async function handler(req, res) {
     });
 
     try {
-      await upsertUser(userProfile);
+      const savedUser = await upsertUser(userProfile);
       console.log('✅ Пользователь успешно аутентифицирован и сохранен');
       
       return res.status(200).json({
         ok: true,
-        profile: userProfile
+        profile: savedUser || userProfile
       });
     } catch (error) {
-      console.error('Supabase upsert error:', error);
-      return res.status(500).json({ ok: false, error: 'Supabase upsert failed' });
+      console.error('❌ Подробная ошибка сохранения пользователя:', {
+        message: error.message,
+        stack: error.stack,
+        user_data: userProfile
+      });
+      
+      return res.status(500).json({ 
+        ok: false, 
+        error: 'Supabase upsert failed',
+        details: error.message,
+        help: 'Check /api/debug/database for detailed diagnostics'
+      });
     }
 
   } catch (error) {
