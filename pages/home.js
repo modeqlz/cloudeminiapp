@@ -104,24 +104,24 @@ export default function HomePage() {
 
           {/* grid tiles */}
           <div className="grid">
-            {/* Gift Store */}
-            <a className="tile tile-auction" href="/store">
+            {/* NFT Auction */}
+            <a className="tile tile-auction" href="/auction">
               <div className="tile-head">
-                <div className="tile-title">🎁 Магазин подарков</div>
-                <div className="tile-badge">New</div>
+                <div className="tile-title">🔥 Аукцион NFT</div>
+                <div className="tile-badge">Live</div>
               </div>
               <div className="tile-desc">
-                Коллекция уникальных NFT подарков. Выбирай и радуй друзей незабываемыми сюрпризами!
+                Участвуй в торгах за редкие NFT! Делай ставки и выигрывай уникальные цифровые активы.
               </div>
             </a>
 
-            {/* Send Gifts */}
+            {/* Send NFT */}
             <a className="tile tile-gifts" href="/send">
               <div className="tile-head">
-                <div className="tile-title">💌 Отправить подарок</div>
+                <div className="tile-title">🚀 Отправить NFT</div>
               </div>
               <div className="tile-desc">
-                Создай особенный момент! Отправь NFT подарок другу и покажи, как он важен для тебя.
+                Передай цифровую ценность! Отправь NFT другу и поделись уникальным активом.
               </div>
             </a>
 
@@ -151,7 +151,7 @@ export default function HomePage() {
                 <div className="tile-title">🔍 Найти друзей</div>
               </div>
               <div className="tile-desc">
-                Найди друзей по @никнейму и подари им что-то особенное. Сделай их день ярче!
+                Найди друзей по @никнейму и отправь им ценные NFT. Поделись цифровыми активами!
               </div>
             </div>
           </div>
@@ -176,10 +176,10 @@ export default function HomePage() {
                     transform: 'translateY(-50%)',
                     fontSize: '16px',
                     color: 'var(--muted)'
-                  }}>🎁</span>
+                  }}>🎨</span>
                   <input
                     type="text"
-                    placeholder="Найди друга по @никнейму и подари ему NFT..."
+                    placeholder="Найди друга по @никнейму и отправь ему NFT..."
                     value={searchQuery}
                     onChange={handleSearchChange}
                     autoFocus
@@ -197,7 +197,7 @@ export default function HomePage() {
                   />
                 </div>
                 <div style={{fontSize: '12px', color: 'var(--muted)', marginTop: '8px', textAlign: 'center'}}>
-                  💝 Найди друзей и удиви их уникальными NFT подарками
+                  🚀 Найди друзей и поделись ценными NFT активами
                 </div>
               </div>
 
@@ -298,7 +298,7 @@ export default function HomePage() {
                           fontWeight: '600',
                           color: 'white'
                         }}>
-                          🎁 Подарить
+                          🚀 Отправить NFT
                         </div>
                       </div>
                     ))}
